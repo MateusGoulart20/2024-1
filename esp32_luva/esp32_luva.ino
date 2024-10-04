@@ -1,14 +1,14 @@
 #include <Wire.h>
-#include <math.h>  // Para funções trigonométricas como atan2
+#include <math.h>  // Para funcões trigonométricas como atan2
 #include <MPU6050.h> // Cat Eletronics
 
-#define MMA8451Q_ADDR1 0x1C  // Endereço I2C do primeiro MMA8451Q
-#define MMA8451Q_ADDR2 0x1D  // Endereço I2C do segundo MMA8451Q
+#define MMA8451Q_ADDR1 0x1C  // Endereco I2C do primeiro MMA8451Q
+#define MMA8451Q_ADDR2 0x1D  // Endereco I2C do segundo MMA8451Q
 #define REG_CTRL_REG1 0x2A
 #define REG_OUT_X_MSB 0x01
 #define GYRO_CONFIG 0x1B
 
-MPU6050 mpu1(0x68); // Endereço I2C do primeiro MPU6050
+MPU6050 mpu1(0x68); // Endereco I2C do primeiro MPU6050
 
 #define RANGE 3.7
 #define MULTIPLY 2
@@ -45,7 +45,6 @@ void setup() {
   } else {
     Serial.println("MPU6050-1 connection failed");
   }
-
 }
 
 void loop() {
@@ -60,7 +59,7 @@ void loop() {
 
 }
 
-// Função para inicializar o sensor
+// Funcao para inicializar o sensor
 void initSensor(uint8_t address) {
   Wire.beginTransmission(address);
   Wire.write(REG_CTRL_REG1);
@@ -70,7 +69,7 @@ void initSensor(uint8_t address) {
 
 void limp(){grau[0]=0;grau[1]=0;grau[2]=0;}
 
-// Função para ler e exibir valores dos eixos de um sensor
+// Funcao para ler e exibir valores dos eixos de um sensor
 void readAndPrintAxis(uint8_t address) {
   limp();
   x = readAxis(address, REG_OUT_X_MSB);
@@ -81,18 +80,8 @@ void readAndPrintAxis(uint8_t address) {
   x_g = (float)x / 4096.0;
   y_g = (float)y / 4096.0;
   z_g = (float)z / 4096.0;
-  //Serial.print(x_g);Serial.print(",");Serial.print(y_g);Serial.print(",");Serial.println(z_g);
-  /* Já não sei mais como esse código se comporta e deveria fazer 
-  grau[0] = (-y_g) * 90;
-  grau[1] = 0;
   
-  if (x > 0) {
-    grau[2] = 90 * (1 - z_g);
-  } else {
-    grau[2] = 90 * (3 + z_g);
-  }
-  */
-  // tentar funcionar por outros tipos de manipulação
+  // tentar funcionar por outros tipos de manipulacao
   grau[1] = 0;
   grau[0] = 0;
   if(z>0){
@@ -106,27 +95,15 @@ void readAndPrintAxis(uint8_t address) {
   Serial.printf(",%f",grau[1]);
   Serial.printf(",%f",grau[2]);
   
-  //grau[0] = sqrt(x_g*x_g+y_g*y_g+z_g*z_g) -1;
-  //if(grau[0] <0.02) grau[0] = 0;
 
   Serial.printf(",%f",x_g);
   Serial.printf(",%f",y_g);
   Serial.printf(",%f",z_g);
-  
-  //Serial.print(grau[0]);Serial.print(",");Serial.print(grau[1]);Serial.print(",");Serial.println(grau[2]);
-  // sendo a transformações de para pitch yaw e roll as corretas
-  // Yaw não é possível determinar pois é giro.
-  // As coordenadas esféricas (r,θ,φ){\displaystyle (r,\theta ,\varphi )} são (convenção norte-americana):
-  // angulo teta sera  x(pitch) , n tera y(yaw), varphi sera z(roll)
-  pitch = atan2(y_g, z_g) * radToDeg;
-  roll = atan2(x_g, sqrt((y_g * y_g) + (z_g * z_g))) * radToDeg;
-  yaw = atan2(y_g, x_g) * radToDeg;
 
-  //Serial.print((float)roll);Serial.print(",");Serial.print((float)yaw);Serial.print(",");Serial.println((float)pitch);
   Serial.println();
 }
 
-// Função para ler valores de um eixo de um sensor específico
+// Funcao para ler valores de um eixo de um sensor especifico
 int16_t readAxis(uint8_t address, uint8_t reg) {
   Wire.beginTransmission(address);
   Wire.write(reg);
@@ -184,11 +161,13 @@ void filtro(int selecao){
 }
 
 void filtroEstavel(int selecao){
-  if( (diferenca[selecao]<FILTRO_RANGE) && (diferenca[selecao]>-FILTRO_RANGE) ) diferenca[selecao] = 0;
+  if( (diferenca[selecao]<FILTRO_RANGE)
+  && (diferenca[selecao]>-FILTRO_RANGE) 
+  ) diferenca[selecao] = 0;
 }
 
 
-// Função para ler e exibir valores do MPU6050
+// Funcao para ler e exibir valores do MPU6050
 void readMPU6050() {
   limp();
   mpu1.getMotion6(&x, &y, &z, &rx, &ry, &rz);
@@ -200,9 +179,12 @@ void readMPU6050() {
   grau[2] = (float)rz / 131.0;
 
   // correcao de sensibilidade e desvio
-  if( (grau[0] > -RANGE) && (grau[0] < RANGE)) {grau[0]=0;}else{grau[0]*=MULTIPLY;}
-  if( (grau[1] > -RANGE) && (grau[1] < RANGE)) {grau[1]=0;}else{grau[1]*=MULTIPLY;}
-  if( (grau[2] > -RANGE) && (grau[2] < RANGE)) {grau[2]=0;}else{grau[2]*=MULTIPLY;grau[2]+=MULTIPLY*3;}
+  if( (grau[0] > -RANGE) && (grau[0] < RANGE)) 
+  {grau[0]=0;}else{grau[0]*=MULTIPLY;}
+  if( (grau[1] > -RANGE) && (grau[1] < RANGE)) 
+  {grau[1]=0;}else{grau[1]*=MULTIPLY;}
+  if( (grau[2] > -RANGE) && (grau[2] < RANGE)) 
+  {grau[2]=0;}else{grau[2]*=MULTIPLY;grau[2]+=MULTIPLY*3;}
 
   aceleracao[0] = x_g;
   aceleracao[1] = y_g;
@@ -225,29 +207,24 @@ void readMPU6050() {
   memoria[1] = y_g;
   memoria[2] = z_g;
 
-//*
+  // aceleracao
   Serial.printf(",%f",aceleracao[0]);
   Serial.printf(",%f",aceleracao[1]);
   Serial.printf(",%f",aceleracao[2]);
-
+  // graus 
   Serial.printf(",%f",grau[0]);
   Serial.printf(",%f",grau[1]);
   Serial.printf(",%f",grau[2]);
 
+  // registro de memoria
+  //Serial.printf(",%f",memoria[0]);
+  //Serial.printf(",%f",memoria[1]);
+  //Serial.printf(",%f",memoria[2]);
 
-//Serial.printf(",%f",memoria[0]);
-//Serial.printf(",%f",memoria[1]);
-//Serial.printf(",%f",memoria[2]);
-
- // Serial.printf(",%f",diferenca[0]);
- // Serial.printf(",%f",diferenca[1]);
- // Serial.printf(",%f",diferenca[2]);
-
-//Serial.printf(",%d",estado[0]);
-  //Serial.printf(",%d",estado[1]);
-  //Serial.printf(",%d",estado[2]);
-/*/
-//*/  
+  // diferenca imediata
+  // Serial.printf(",%f",diferenca[0]);
+  // Serial.printf(",%f",diferenca[1]);
+  // Serial.printf(",%f",diferenca[2]);
 
   Serial.println();
 }
